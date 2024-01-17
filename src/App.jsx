@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
@@ -13,6 +13,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import axios from 'axios'
 
 const navigation = [
   { name: 'Задачи', href: '#', icon: HomeIcon, current: true },
@@ -36,7 +37,23 @@ function classNames(...classes) {
 }
 
 export default function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [todos, setTodos] = useState([]);
+  const [newTodo, setNewTodo] = useState("");
+
+  useEffect(() => {
+    //выполняется один раз после загруски компонента
+    axios.get('http://localhost:3000/api/todos')
+      .then((data) => {
+        // console.log(data, "data");
+        setTodos(data.data)
+      })
+      .catch((error) => console.log(error, 'error'))
+  }, []);
+
+  useEffect(() => {
+    console.log(todos, 'todos')
+  }, [todos])
 
   return (
     <>
@@ -156,7 +173,7 @@ export default function App() {
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-4">
             <div className="flex h-16 shrink-0 items-center">
               <img src="public/logo.png" alt="" />
-               Dashboard
+              Dashboard
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -299,7 +316,13 @@ export default function App() {
                 <legend className="sr-only">Notifications</legend>
 
                 <div className="divide-y divide-gray-200">
-
+                  {todos.map((todo) => {
+                    return(
+                    <>
+                      {todo?.id} - {todo?.name} - {todo?.isDone}
+                    </>
+                  );
+                  })}
                   <div className="relative flex items-start pb-4 pt-3.5">
                     <div className='cart'>
                       <div className="min-w-0 flex-1 text-sm leading-6">
